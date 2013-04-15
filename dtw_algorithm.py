@@ -1,7 +1,8 @@
-import math
+def distance_euclidean(a, b):
+    return abs(a-b)
 
 # algorithm from http://en.wikipedia.org/wiki/Dynamic_time_warping#Implementation
-def dtw(x_axis, y_axis): # set_a and set_b are lists
+def dtw(x_axis, y_axis, distance=distance_euclidean): # set_a and set_b are lists, default distance fn to use is distance_euclidean but could pass in a different fn to use instead if needed
     x = len(x_axis) + 1
     y = len(y_axis) + 1
 
@@ -40,31 +41,3 @@ def dtw(x_axis, y_axis): # set_a and set_b are lists
     #   print ""
 
     return dtw_matrix[x-1][y-1]
-
-def distance(a, b):
-    return abs(a-b)
-
-# Christian's example from 4/10 talk
-a = 1, 2, 1
-b = 1, 1, 2, 1
-"""
-desired end matrix looks like this: doing min of (cell above, to left, or diagonal to the upper left), going from top left to bottom right:
-0       (1)inf (2)inf   (1)inf
-(1)inf  0       1       1
-(1)inf  0       1       1
-(2)inf  1       0       1
-(1)inf  1       1       0*
-"""
-
-# given degrees and step size, product and return list of vectors for a sine wave
-def sine_wave(degrees, step):
-    vector_list = []
-    for i in range(1, degrees, step):
-        vector = math.sin(math.radians(i))
-        vector_list.append(vector)
-
-    return vector_list
-
-l1 = sine_wave(360, 1)
-l2 = sine_wave(360, 2)
-#dtw(l1, l2) should be < 2
