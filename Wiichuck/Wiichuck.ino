@@ -5,8 +5,6 @@
 #include <Wire.h> // a library that's bundled with the Arduino IDE
 #include "nunchuck_funcs.h" // this is Tod E. Kurt's library
 
-//int ledPin = 13; // why did the demo file come with this? don't seem to need it
-
 byte accx,accy,accz,zbut; // declaring these variables for use later
 int loop_cnt = 0; // counter, using it later for how frequently to collect data -- why this instead of just putting in a bigger delay in the loop?
 int status = 0; // track whether status on (1) or off (0)
