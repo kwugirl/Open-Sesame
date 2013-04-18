@@ -35,10 +35,10 @@ void loop() // Arduino constantly runs this
           accy  = nunchuck_accely(); // ranges from approx 65 - 173
           accz  = nunchuck_accelz();
           
-          Serial.print("accx: "); Serial.print((byte)accx,DEC);
-          Serial.print("\taccy: "); Serial.print((byte)accy,DEC);
-          Serial.print("\taccz: "); Serial.print((byte)accz,DEC);
-          Serial.print("\n");
+          Serial.print((byte)accx,DEC); Serial.print(","); // x reading
+          Serial.print((byte)accy,DEC); Serial.print(","); // y reading
+          Serial.print((byte)accz,DEC); // z reading
+          Serial.print("\n"); // print a new line
           
         }           
 
