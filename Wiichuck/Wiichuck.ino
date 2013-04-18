@@ -7,8 +7,9 @@
 
 //int ledPin = 13; // why did the demo file come with this? don't seem to need it
 
-byte accx,accy,accz,zbut,cbut; // declaring these variables for use later
-int loop_cnt=0; // counter, using it later for how frequently to collect data
+byte accx,accy,accz,zbut; // declaring these variables for use later
+int loop_cnt = 0; // counter, using it later for how frequently to collect data -- why this instead of just putting in a bigger delay in the loop?
+int status = 0; // track whether status on (1) or off (0)
 
 void setup()
 {
@@ -30,17 +31,27 @@ void loop() // Arduino constantly runs this
 
         zbut = nunchuck_zbutton(); // check input from z button
         
-        if ( zbut == 1 ) { // if z button is pressed down (1), collect xyz data
+        if ( zbut == 1 ) { // if z button is pressed down (1)
+          if ( status == 0 ) { // if Arduino weren't previously collecting info
+            status = 1;
+            Serial.println("start");
+          }          
+          
           accx  = nunchuck_accelx(); // ranges from approx 70 - 182
           accy  = nunchuck_accely(); // ranges from approx 65 - 173
           accz  = nunchuck_accelz();
           
           Serial.print((byte)accx,DEC); Serial.print(","); // x reading
           Serial.print((byte)accy,DEC); Serial.print(","); // y reading
-          Serial.print((byte)accz,DEC); // z reading
-          Serial.print("\n"); // print a new line
+          Serial.println((byte)accz,DEC); // z reading
           
-        }           
+        }
+        else {
+          if( status == 1) { // if Arduino were previously collecting data
+            Serial.println("stop");
+            status = 0;
+          }
+        }
 
     }
     loop_cnt++;
