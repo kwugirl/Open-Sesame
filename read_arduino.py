@@ -1,4 +1,6 @@
 import serial
+from pyprocessing import *
+
 
 def read_arduino():
     ser = serial.Serial(port='/dev/tty.usbmodemfa131', baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
@@ -36,7 +38,25 @@ def read_arduino():
 
             return "Too slow to give input, timed out!"
 
+def setup():
+    size(800, 800)
+
+def draw():
+    background(255)
+
+    global vector_list
+
+    translate(100, 100, 0) # translate resets where origin is
+
+    for vector in vector_list:
+        point(0,0,0)
+
+        v = PVector(vector[0], vector[1], vector[2])
+
+        line(0,0,0, v.x, v.y, v.z)
+
+        translate(v.x, v.y, v.z)
 
 
-def draw_gesture(vector_list):
-    pass
+def draw_gesture():
+    run()

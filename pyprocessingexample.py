@@ -1,6 +1,6 @@
 from pyprocessing import *
 
-# playing aroudn with pyprocessing library
+# playing around with pyprocessing library
 
 def setup():
     size(800, 800)
