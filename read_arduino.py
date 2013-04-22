@@ -18,7 +18,6 @@ def read_arduino():
 
         elif data == "stop": # z button had been pressed down previously, now just let go of it to end collection of data
             print "finished collecting data"
-
             ser.close() # close serial connection
 
             return gesture
@@ -36,3 +35,8 @@ def read_arduino():
             ser.close()
 
             return "Too slow to give input, timed out!"
+
+
+
+def draw_gesture(vector_list):
+    pass
