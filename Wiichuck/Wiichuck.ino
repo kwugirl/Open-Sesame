@@ -16,7 +16,7 @@ void setup()
     nunchuck_setpowerpins(); // sets up analog pins 2 and 3 to be used as power and ground
     nunchuck_init(); // send the initilization handshake
     
-    t.every(50, takeReading);
+    t.every(1, takeReading);
     
     Serial.print("WiiChuck connected!\n");
 }

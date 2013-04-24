@@ -1,9 +1,10 @@
 import serial
-from pyprocessing import *
+
+# this is the driver to get data off the device (Arduino + Wii nunchuck)
 
 
 def read_arduino():
-    ser = serial.Serial(port='/dev/tty.usbmodemfa131', baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
+    ser = serial.Serial(port="/dev/tty.usbmodemfd121", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
 
     print ser.readline() # print out connection confirmation message
 
@@ -16,6 +17,15 @@ def read_arduino():
         if data == "start": # z button pressed down for first time
             gesture = []
             status = "on"
+
+            step = 30 # step for how frequently to record readings
+            window = 50 # window to average across
+            counter = step - window # start w/ neg number to be able to use mod later
+
+            vectors = {}
+            for i in range(3):
+                vectors[i] = [0]*window
+
             print "starting to collect data now"
 
         elif data == "stop": # z button had been pressed down previously, now just let go of it to end collection of data
@@ -25,38 +35,33 @@ def read_arduino():
             return gesture
 
         elif status == "on":
-            print "collecting data..."
-            vector_list = str.split((data), ",") # break apart into a 3-item [x, y, z] list
+            #print "collecting data..."
+            print data
 
-            for i in range(len(vector_list)):
-                vector_list[i] = int(vector_list[i]) # convert contents of vector_list into numbers
+            counter += 1
 
-            gesture.append(vector_list)
+            values_list = str.split((data), ",") # break apart into a 3-item [x, y, z] list
+
+            for i in range(len(values_list)):
+                values_list[i] = int(values_list[i]) # convert contents of vector_list into numbers
+                vectors[i].pop(0) # pop off oldest value
+                vectors[i].append(values_list[i]) # append newest value
+
+            if counter % step == 0 and counter != 0: # for taking readings at the right steps (30, 60...) but skip when counter hits 0
+                reading = []
+
+                for i in range(3):
+                    sum = 0
+                    for num in vectors[i]:
+                        sum += num
+                    avg = sum / len(vectors[i])
+
+                    reading.append(avg)
+
+                gesture.append(reading)
 
         else:
             ser.close()
 
             return "Too slow to give input, timed out!"
 
-def setup():
-    size(800, 800)
-
-def draw():
-    background(255)
-
-    global vector_list
-
-    translate(100, 100, 0) # translate resets where origin is
-
-    for vector in vector_list:
-        point(0,0,0)
-
-        v = PVector(vector[0], vector[1], vector[2])
-
-        line(0,0,0, v.x, v.y, v.z)
-
-        translate(v.x, v.y, v.z)
-
-
-def draw_gesture():
-    run()
