@@ -1,10 +1,11 @@
 import serial
-
+import math
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 
 
 def read_arduino():
-    ser = serial.Serial(port="/dev/tty.usbmodemfd121", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
+    ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
+    # other port is "/dev/tty.usbmodemfd121"
 
     print ser.readline() # print out connection confirmation message
 
@@ -51,12 +52,10 @@ def read_arduino():
                 reading = []
 
                 for i in range(3):
-                    sum = 0
-                    for num in vectors[i]:
-                        sum += num
-                    avg = sum / len(vectors[i])
+                    avg = get_avg(vectors[i])
+                    converted_value = convert_data(avg)
 
-                    reading.append(avg)
+                    reading.append(converted_value)
 
                 gesture.append(reading)
 
@@ -64,4 +63,46 @@ def read_arduino():
             ser.close()
 
             return "Too slow to give input, timed out!"
+
+
+def get_avg(numbers):
+    sum = 0
+    for num in numbers:
+        sum += num
+    avg = sum / len(numbers)
+
+    return avg
+
+
+def convert_data(value):
+    max_value = 256
+    max_half = max_value/2
+    levels_lower = 10
+    levels_higher = 5
+
+    value -= max_half # recenter for 128 to be at 0
+    v = abs(value)
+
+    if v > 0:
+        sign = value/v # for whether it's positive or negative
+    else:
+        sign = 1 # for when input is 0 so that won't get division error
+
+    # for 1 to 10 levels (including negative)
+    if v <= max_half/2:
+        step = max_value/(4.0*levels_lower)
+
+        new_value = math.ceil(v/step)*sign
+
+        return int(new_value)
+
+    # for 11 to 15 levels (including negative)
+    else:
+        step = max_value/(4.0*levels_higher)
+        v_diff = v - max_half/2 # difference from 64
+
+        abs_value = math.ceil(v/step) + levels_lower # add 10 to get to 11-15
+        new_value = abs_value*sign
+
+        return int(new_value)
 

@@ -62,7 +62,7 @@ static void nunchuck_send_request()
     Wire.endTransmission();// stop transmitting
 }
 
-// Encode data to format that most wiimote drivers except
+// Encode data to format that most wiimote drivers accept
 // only needed if you use one of the regular wiimote drivers
 static char nunchuk_decode_byte (char x)
 {
@@ -93,7 +93,7 @@ static int nunchuck_get_data()
     return 0; //failure
 }
 
-// Print the input data we have recieved
+// Print the input data we have received
 // accel data is 10 bits long
 // so we read 8 bits, then we have to add
 // on the last 2 bits.  That is why I
