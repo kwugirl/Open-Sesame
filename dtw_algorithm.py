@@ -1,3 +1,27 @@
+class Vector:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __sub__ (self, other): # for if you were to subtract one vector obejct from another. dot product calculation to get Euclidean distance between two vectors (magnitude of vector between them), formula from http://www.mathsisfun.com/algebra/vectors-dot-product.html
+        x = self.x * other.x
+        y = self.y * other.y
+        z = self.z * other.z
+
+        distance = x + y + z
+
+        return distance
+
+
+class Gesture:
+    def __init__(self, vectors): # pass in list of Vector objects to create a Gesture
+        self.vectors = vectors
+
+    def __sub__ (self, other): # to subtract one gesture from another (to get the difference, lower difference = more similar)
+        return dtw(self.vectors, other.vectors)
+
+
 def distance_euclidean(a, b):
     return abs(a-b)
 

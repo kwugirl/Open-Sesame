@@ -2,7 +2,6 @@ import serial
 import math
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 
-
 def read_arduino():
     ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
     # other port is "/dev/tty.usbmodemfd121"
@@ -75,10 +74,10 @@ def get_avg(numbers):
 
 
 def convert_data(value):
-    max_value = 256
+    max_value = 256 # goes from 0-256 (1-255 for actual input)
     max_half = max_value/2
-    levels_lower = 10
-    levels_higher = 5
+    levels_lower = 10 # for 0 to g
+    levels_higher = 5 # for 0 to 2g
 
     value -= max_half # recenter for 128 to be at 0
     v = abs(value)

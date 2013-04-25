@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h1>Login</h1>
+
+<form name="login" action="{{ url_for('validate_login') }}" method="post">
+    Email: <input type="text" name="email"><br />
+    Password: <input type="text" name="password"><br />
+    <input type="submit" value="Login">
+</form>
+
+{% endblock %}

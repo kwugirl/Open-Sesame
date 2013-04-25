@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h1>This is not the password you've been looking for...</h1>
+
+<!-- login link -->
+{% if session['email'] %}
+<!--only show logout link, login status if user is logged in.-->
+
+    <!-- Sign-in status-->
+    You are currently signed in as: {{ session['email'] }}
+
+    <!-- logout link -->
+    <br />
+    <a href="{{ url_for('logout') }}">Click here to logout</a>
+
+{% else %}
+    <a href="{{ url_for('login') }}">Click here to login</a><br />
+    <a href="{{ url_for('create_user') }}">Create a new user</a>
+
+{% endif %}
+
+
+{% endblock %}
