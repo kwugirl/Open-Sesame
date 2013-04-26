@@ -1,7 +1,6 @@
 from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
 import model
 import urllib # used for URL encoding
-import read_arduino
 import dtw_algorithm
 
 app = Flask(__name__)
@@ -18,18 +17,21 @@ def create_user():
 @app.route("/save_user", methods=["POST"])
 def save_user():
 
-    form_email = urllib.quote(request.form['email'])
-    form_password = urllib.quote(request.form['password'])
+    form_email = request.json['email']
+    form_password = request.json['password'] # comes in as <type 'unicode'>
 
-    if form_email and form_password:
-        new_user = model.User(email=form_email, password=form_password)
-        model.session.add(new_user)
-        model.session.commit()
-        flash('New user ' + request.form['email'] + ' created!')
-        return redirect(url_for('index'))
-    else:
-        flash('Please enter a valid email address and password.')
-        return redirect(url_for('create_user'))
+    print type(form_email)
+    print type(form_password)
+
+    # if form_email and form_password:
+    #     new_user = model.User(email=form_email, password=form_password)
+    #     model.session.add(new_user)
+    #     model.session.commit()
+    #     flash('New user ' + request.form['email'] + ' created!')
+    #     return redirect(url_for('index'))
+    # else:
+    flash('Please enter a valid email address and password.')
+    return redirect(url_for('create_user'))
 
 @app.route("/login", methods=['GET'])
 def login():
@@ -59,13 +61,6 @@ def logout():
     flash('You have logged out.')
     return redirect(url_for('index'))
 
-@app.route("/_get_gesture")
-def get_gesture():
-    data = read_arduino.read()
-
-    data = str(data)
-
-    return jsonify(result=data)
 
 
 if __name__ == "__main__":

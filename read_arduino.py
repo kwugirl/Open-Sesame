@@ -1,9 +1,12 @@
 import serial
 import math
+import json
+import os
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
+# run this to collect input from nunchuck
 
-def read():
-    ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
+def main():
+    ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200) # will time out any .readline() below after 3 seconds
     # other port is "/dev/tty.usbmodemfd121"
 
     print ser.readline() # print out connection confirmation message
@@ -30,9 +33,16 @@ def read():
 
         elif data == "stop": # z button had been pressed down previously, now just let go of it to end collection of data
             print "finished collecting data"
-            ser.close() # close serial connection
 
-            return gesture
+            print gesture
+
+            # writes out gesture data as text to wherever OS can type right then
+            output_cmd = """
+            osascript -e 'tell application "System Events" to keystroke "%s"'
+            """ %(str(gesture))
+
+            os.system(output_cmd)
+            # FIX LATER: terminal gets error dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements
 
         elif status == "on":
             #print "collecting data..."
@@ -58,10 +68,6 @@ def read():
 
                 gesture.append(reading)
 
-        else:
-            ser.close()
-
-            return "Too slow to give input, timed out!"
 
 
 def get_avg(numbers):
@@ -105,3 +111,6 @@ def convert_data(value):
 
         return int(new_value)
 
+
+if __name__ == "__main__":
+    main()

@@ -4,10 +4,14 @@
 
 <h1>Create New User</h1>
 
-<form name="create_user" action="{{ url_for('save_user') }}" method="post">
+<form name="create_user" action="{{ url_for('save_user') }}" method="post" enctype="application/json">
     Email: <input type="text" name="email"><br />
-    Password: <input type="text" name="password"><br />
+    Password: <br />
+    <textarea name="password" id="password" rows="5" columns="30"></textarea><br />
+
+
     <input type="submit" value="Add new user">
 </form>
+
 
 {% endblock %}

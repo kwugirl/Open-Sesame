@@ -6,12 +6,11 @@
 
 <form name="login" action="{{ url_for('validate_login') }}" method="post">
     Email: <input type="text" name="email"><br />
-    Password: <input type="text" name="password" id="password"><br />
+    Password: <br />
+    <textarea name="password" id="password" rows="5" columns="30"></textarea><br />
+
     <input type="submit" value="Login">
 </form>
-
-<br />
-<a href=# id="getgesture">get data</a>
 
 
 {% endblock %}
