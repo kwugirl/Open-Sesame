@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, redirect, request, session, url_for
+from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
 import model
 import urllib # used for URL encoding
 import read_arduino
@@ -58,6 +58,14 @@ def logout():
     session.pop('user_id', None)
     flash('You have logged out.')
     return redirect(url_for('index'))
+
+@app.route("/_get_gesture")
+def get_gesture():
+    data = read_arduino.read()
+
+    data = str(data)
+
+    return jsonify(result=data)
 
 
 if __name__ == "__main__":

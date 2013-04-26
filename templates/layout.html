@@ -1,5 +1,27 @@
 <html>
 
+<head>
+
+    <script type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+
+    <script type=text/javascript>
+        $(function() {
+            $('a#getgesture').bind('click', function() {
+                $.getJSON($SCRIPT_ROOT + '/_get_gesture', {
+                }, function(data) {
+                    $("#password").val(data.result);
+                });
+                return false;
+            });
+        });
+    </script>
+
+</head>
+
 <body>
 
 {% for message in get_flashed_messages() %}

@@ -2,7 +2,7 @@ import serial
 import math
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 
-def read_arduino():
+def read():
     ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200, timeout= 3) # will time out any .readline() below after 3 seconds
     # other port is "/dev/tty.usbmodemfd121"
 
