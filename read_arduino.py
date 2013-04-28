@@ -36,13 +36,13 @@ def main():
 
             print gesture
 
-            # writes out gesture data as text to wherever OS can type right then
+            # writes out gesture data as text to wherever Mac OS can type right then
             output_cmd = """
             osascript -e 'tell application "System Events" to keystroke "%s"'
             """ %(str(gesture))
 
             os.system(output_cmd)
-            # FIX LATER: terminal gets error dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements
+            # TO DO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
 
         elif status == "on":
             #print "collecting data..."

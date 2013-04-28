@@ -2,6 +2,7 @@ from flask import Flask, flash, render_template, redirect, request, session, url
 import model
 import urllib # used for URL encoding
 import dtw_algorithm
+import json
 
 app = Flask(__name__)
 app.secret_key = 'some_secret'
@@ -17,21 +18,27 @@ def create_user():
 @app.route("/save_user", methods=["POST"])
 def save_user():
 
-    form_email = request.json['email']
-    form_password = request.json['password'] # comes in as <type 'unicode'>
+    form_email = urllib.quote(request.form['email'])
+    form_password = json.loads(request.form['password']) # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
 
-    print type(form_email)
-    print type(form_password)
+    # TO DO: add check that email doesn't already exist in DB
+    if form_email and form_password: # checking that both email and pw have been entered
 
-    # if form_email and form_password:
-    #     new_user = model.User(email=form_email, password=form_password)
-    #     model.session.add(new_user)
-    #     model.session.commit()
-    #     flash('New user ' + request.form['email'] + ' created!')
-    #     return redirect(url_for('index'))
-    # else:
-    flash('Please enter a valid email address and password.')
-    return redirect(url_for('create_user'))
+        vector_objects = []
+        for vector in form_password: # convert vectors into objects
+            new_vector = dtw_algorithm.Vector(vector[0], vector[1], vector[2])
+            vector_objects.append(new_vector)
+
+        gesture = dtw_algorithm.Gesture(vector_objects)
+
+        new_user = model.User(email=form_email, password=vector_objects)
+        model.session.add(new_user)
+        model.session.commit()
+        flash('New user ' + request.form['email'] + ' created!')
+        return redirect(url_for('index'))
+    else:
+        flash('Please enter a valid email address and password.')
+        return redirect(url_for('create_user'))
 
 @app.route("/login", methods=['GET'])
 def login():

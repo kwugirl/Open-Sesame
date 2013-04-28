@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, PickleType
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 engine = create_engine("sqlite:///passwords.db", echo = False)
@@ -14,7 +14,7 @@ class User (Base):
 
     id = Column(Integer, primary_key = True)
     email = Column(String(64), nullable = True)
-    password = Column(String(64), nullable = True)
+    password = Column(PickleType, nullable = True) # Holds Python objects, which are serialized using pickle
 
 
 ### End class declarations
