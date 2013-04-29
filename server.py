@@ -1,8 +1,8 @@
-from flask import Flask, flash, render_template, redirect, request, session, url_for, jsonify
-import model
+from flask import Flask, flash, render_template, redirect, request, session, url_for
 import urllib # used for URL encoding
-import dtw_algorithm
 import json
+import model
+import dtw_algorithm
 
 app = Flask(__name__)
 app.secret_key = 'some_secret'
@@ -19,19 +19,14 @@ def create_user():
 def save_user():
 
     form_email = urllib.quote(request.form['email'])
+    # TO DO: add check for password not being in JSON format
     form_password = json.loads(request.form['password']) # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
 
     # TO DO: add check that email doesn't already exist in DB
     if form_email and form_password: # checking that both email and pw have been entered
+        gesture = dtw_algorithm.create_gesture(form_password)
 
-        vector_objects = []
-        for vector in form_password: # convert vectors into objects
-            new_vector = dtw_algorithm.Vector(vector[0], vector[1], vector[2])
-            vector_objects.append(new_vector)
-
-        gesture = dtw_algorithm.Gesture(vector_objects)
-
-        new_user = model.User(email=form_email, password=vector_objects)
+        new_user = model.User(email=form_email, password=gesture)
         model.session.add(new_user)
         model.session.commit()
         flash('New user ' + request.form['email'] + ' created!')
@@ -47,14 +42,17 @@ def login():
 @app.route("/validate_login", methods=["POST"])
 def validate_login():
     form_email = urllib.quote(request.form['email'])
-    form_password = urllib.quote(request.form['password'])
+    form_password = json.loads(request.form['password'])
 
-    #form_email and form_password must both exist and match in db for row to be an object. Row is the entire row from the users table, including the id
-    row = model.session.query(model.User).filter_by(email=form_email, password=form_password).first()
+    gesture = dtw_algorithm.create_gesture(form_password)
 
-    if row:
+    user = model.session.query(model.User).filter_by(email=form_email).first()
+
+    difference = gesture - user.password
+
+    if difference < 1000: # TO DO: figure out what difference threshold should be
         session['email'] = request.form['email']
-        session['user_id'] = row.id
+        session['user_id'] = user.id
         flash('Login successful!')
         return redirect(url_for('index'))
     else:
