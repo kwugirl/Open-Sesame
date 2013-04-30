@@ -4,7 +4,7 @@
 
 #include <Wire.h> // a library that's bundled with the Arduino IDE
 #include "nunchuck_funcs.h" // this is Tod E. Kurt's library
-#include "Timer.h" // SimpleTimer library http://playground.arduino.cc//Code/SimpleTimer
+#include "Timer.h" // Timer library http://playground.arduino.cc//Code/Timer
 
 byte accx,accy,accz,zbut; // declaring these variables for use later
 int status = 0; // track whether status on (1) or off (0)

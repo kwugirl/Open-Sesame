@@ -1,6 +1,5 @@
 import serial
 import math
-import json
 import os
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 # run this to collect input from nunchuck
@@ -11,15 +10,12 @@ def main():
 
     print ser.readline() # print out connection confirmation message
 
-    status = "off"
-
     while True: # keeping reading data from Arduino
         line = ser.readline() # reading serial output from Arduino line by line
         data = str.strip(line) # strip newline from the end
 
         if data == "start": # z button pressed down for first time
             gesture = []
-            status = "on"
 
             step = 30 # step for how frequently to record readings
             window = 50 # window to average across
@@ -32,20 +28,11 @@ def main():
             print "starting to collect data now"
 
         elif data == "stop": # z button had been pressed down previously, now just let go of it to end collection of data
-            print "finished collecting data"
+            output_gesture(gesture)
 
-            print gesture
+        else:
+            # collect_data()
 
-            # writes out gesture data as text to wherever Mac OS can type right then
-            output_cmd = """
-            osascript -e 'tell application "System Events" to keystroke "%s"'
-            """ %(str(gesture))
-
-            os.system(output_cmd)
-            # TO DO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
-
-        elif status == "on":
-            #print "collecting data..."
             print data
 
             counter += 1
@@ -68,6 +55,24 @@ def main():
 
                 gesture.append(reading)
 
+
+def collect_data():
+
+    gesture = []
+
+
+def output_gesture(gesture):
+    print "finished collecting data"
+
+    print gesture
+
+    # writes out gesture data as text to wherever Mac OS can type right then
+    output_cmd = """
+    osascript -e 'tell application "System Events" to keystroke "%s"'
+    """ %(str(gesture))
+
+    os.system(output_cmd)
+    # TO DO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
 
 
 def get_avg(numbers):

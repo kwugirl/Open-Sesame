@@ -6,7 +6,7 @@ class Vector:
         self.y = y
         self.z = z
 
-    def __sub__ (self, other): # for if you were to subtract one vector object from another. dot product calculation to get Euclidean distance between two vectors (magnitude of vector between them), formula from http://www.mathsisfun.com/algebra/vectors-dot-product.html
+    def __sub__ (self, other): # for if you were to subtract one vector object from another, uses Pythagorean theorem
         x = self.x - other.x
         y = self.y - other.y
         z = self.z - other.z
