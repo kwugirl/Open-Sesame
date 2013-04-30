@@ -17,10 +17,6 @@
 
 <body>
 
-{% for message in get_flashed_messages() %}
-  <div class=flash>{{ message }}</div>
-{% endfor %}
-
 <div class="container">
 
   <div class="login">
@@ -34,9 +30,13 @@
 
       <div class="login-form">
 
+        {% block body %}
+        {% endblock %}
 
-{% block body %}
-{% endblock %}
+        <br />
+        {% for message in get_flashed_messages() %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
 
       </div>
     </div>
