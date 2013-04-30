@@ -65,18 +65,24 @@ def save_user():
 @app.route("/validate_login", methods=["POST"])
 def validate_login():
     form_email = urllib.quote(request.form['email'])
-    form_password = json.loads(request.form['password'])
+
+    try:
+        form_password = json.loads(request.form['password'])
+    except ValueError:
+        flash('Password must be a motion gesture, please try again.')
+        return redirect(url_for('index'))
 
     gesture = dtw_algorithm.create_gesture(form_password)
 
-    user = model.session.query(model.User).filter_by(email=form_email).first()
-
     authentication = False
 
-    for password in user.password:
-        if gesture - password <= user.threshold:
-            authentication = True
-            break
+    user = model.session.query(model.User).filter_by(email=form_email).first()
+
+    if user:
+        for password in user.password:
+            if gesture - password <= user.threshold:
+                authentication = True
+                break
 
     if authentication is True:
         session['email'] = request.form['email']
