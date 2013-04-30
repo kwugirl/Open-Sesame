@@ -13,8 +13,9 @@ class User (Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key = True)
-    email = Column(String(64), nullable = True)
-    password = Column(PickleType, nullable = True) # Holds Python objects, which are serialized using pickle
+    email = Column(String(64), nullable = False)
+    password = Column(PickleType, nullable = False) # Holds Python objects, which are serialized using pickle
+    threshold = Column(Integer, nullable = False)
 
 
 ### End class declarations

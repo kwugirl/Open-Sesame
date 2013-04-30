@@ -20,17 +20,30 @@ def save_user():
 
     form_email = urllib.quote(request.form['email'])
     # TO DO: add check for password not being in JSON format
-    form_password = json.loads(request.form['password']) # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
+    form_password1 = json.loads(request.form['password1']) # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
+    form_password2 = json.loads(request.form['password2'])
+    form_password3 = json.loads(request.form['password3'])
 
     # TO DO: add check that email doesn't already exist in DB
-    if form_email and form_password: # checking that both email and pw have been entered
-        gesture = dtw_algorithm.create_gesture(form_password)
+    # TO DO: clean up whether 3 samples should be required
+    if form_email and form_password1: # checking that both email and pw have been entered
+        gesture1 = dtw_algorithm.create_gesture(form_password1)
+        gesture2 = dtw_algorithm.create_gesture(form_password2)
+        gesture3 = dtw_algorithm.create_gesture(form_password3)
 
-        new_user = model.User(email=form_email, password=gesture)
+        gestures = [gesture1, gesture2, gesture3]
+
+        # TO DO: better way to do this combinatorics?
+        # run DTW on all pairs of samples, store greatest difference as user's personal threshold
+        threshold = max(gesture1 - gesture2, gesture1 - gesture3, gesture2 - gesture3)
+
+        new_user = model.User(email=form_email, password=gestures, threshold = threshold)
         model.session.add(new_user)
         model.session.commit()
+
         flash('New user ' + request.form['email'] + ' created!')
         return redirect(url_for('index'))
+
     else:
         flash('Please enter a valid email address and password.')
         return redirect(url_for('create_user'))
@@ -44,9 +57,14 @@ def validate_login():
 
     user = model.session.query(model.User).filter_by(email=form_email).first()
 
-    difference = gesture - user.password
+    authentication = False
 
-    if difference < 1000: # TO DO: figure out what difference threshold should be
+    for password in user.password:
+        if gesture - password <= user.threshold:
+            authentication = True
+            break
+
+    if authentication == True:
         session['email'] = request.form['email']
         session['user_id'] = user.id
         flash('Login successful!')
