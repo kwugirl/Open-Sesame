@@ -1,6 +1,7 @@
 import dtw_algorithm
 import math
 
+
 def test_dtw():
     # Christian's example from 4/10 talk
     """
@@ -18,6 +19,7 @@ def test_dtw():
     s1 = sine_wave(360, 1)
     s2 = sine_wave(360, 2)
     assert(dtw_algorithm.dtw(s1, s2) < 2), "Sine wave test failed"
+
 
 # given degrees and step size, product and return list of vectors for a sine wave
 def sine_wave(degrees, step):
