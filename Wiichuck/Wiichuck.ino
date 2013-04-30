@@ -6,7 +6,7 @@
 #include "nunchuck_funcs.h" // this is Tod E. Kurt's library
 #include "Timer.h" // Timer library http://playground.arduino.cc//Code/Timer
 
-byte accx,accy,accz,zbut; // declaring these variables for use later
+byte accx,accy,accz,zbut,cbut; // declaring these variables for use later
 int status = 0; // track whether status on (1) or off (0)
 Timer t;
 
@@ -52,6 +52,12 @@ void takeReading()
         Serial.println("stop");
         status = 0;
       }
+    }
+    
+    cbut = nunchuck_cbutton(); // check input from c button to use as reading exit
+    
+    if ( cbut == 1) { // if c button is pressed down (1)
+      Serial.println("exit");
     }
 }
 

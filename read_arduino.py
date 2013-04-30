@@ -1,65 +1,65 @@
 import serial
 import math
 import os
+
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 # run this to collect input from nunchuck
 
 def main():
-    ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200) # will time out any .readline() below after 3 seconds
+    ser = serial.Serial(port="/dev/tty.usbmodemfa131", baudrate=19200)
     # other port is "/dev/tty.usbmodemfd121"
 
     print ser.readline() # print out connection confirmation message
 
-    while True: # keeping reading data from Arduino
-        line = ser.readline() # reading serial output from Arduino line by line
+    while True: # keeping reading data from Arduino until c-button is pressed
+        line = ser.readline() # reading serial output from Arduino line by line, program will hang here if no output
         data = str.strip(line) # strip newline from the end
 
         if data == "start": # z button pressed down for first time
-            gesture = []
-
-            step = 30 # step for how frequently to record readings
-            window = 50 # window to average across
-            counter = step - window # start w/ neg number to be able to use mod later
-
-            vectors = {}
-            for i in range(3):
-                vectors[i] = [0]*window
-
-            print "starting to collect data now"
-
-        elif data == "stop": # z button had been pressed down previously, now just let go of it to end collection of data
+            gesture = collect_data(ser)
             output_gesture(gesture)
 
-        else:
-            # collect_data()
-
-            print data
-
-            counter += 1
-
-            values_list = str.split((data), ",") # break apart into a 3-item [x, y, z] list
-
-            for i in range(len(values_list)):
-                values_list[i] = int(values_list[i]) # convert contents of vector_list into numbers
-                vectors[i].pop(0) # pop off oldest value
-                vectors[i].append(values_list[i]) # append newest value
-
-            if counter % step == 0 and counter != 0: # for taking readings at the right steps (30, 60...) but skip when counter hits 0
-                reading = []
-
-                for i in range(3):
-                    avg = get_avg(vectors[i])
-                    converted_value = convert_data(avg)
-
-                    reading.append(converted_value)
-
-                gesture.append(reading)
+        elif data == "exit":
+            ser.close()
+            return
 
 
-def collect_data():
+def collect_data(ser):
+    step = 30 # step for how frequently to record readings
+    window = 50 # window to average across
+    counter = step - window # start w/ neg number to be able to use mod later
+
+    vectors = {} # dictionary for each list of averaging windows
+    for i in range(3):
+        vectors[i] = [0]*window
 
     gesture = []
 
+    print "starting to collect data now"
+
+    line = ser.readline()
+    data = str.strip(line)
+
+    while data != "stop": # stop = z button had been pressed down previously, now just let go of it to end collection of data
+        print data
+
+        values_list = str.split((data), ",") # break apart into a 3-item [x, y, z] list
+
+        counter += 1
+
+        for i in range(len(values_list)):
+            values_list[i] = int(values_list[i]) # convert contents of vector_list into numbers
+            vectors[i].pop(0) # pop off oldest value
+            vectors[i].append(values_list[i]) # append newest value
+
+        if counter % step == 0 and counter != 0: # for taking readings at the right steps (30, 60...) but skip when counter hits 0
+            reading = get_avg_reading(vectors)
+            gesture.append(reading)
+
+        line = ser.readline()
+        data = str.strip(line)
+
+    return gesture
 
 def output_gesture(gesture):
     print "finished collecting data"
@@ -73,6 +73,17 @@ def output_gesture(gesture):
 
     os.system(output_cmd)
     # TO DO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
+
+def get_avg_reading(vectors):
+    reading = []
+
+    for i in range(3):
+        avg = get_avg(vectors[i])
+        converted_value = convert_data(avg)
+
+        reading.append(converted_value)
+
+    return reading
 
 
 def get_avg(numbers):
