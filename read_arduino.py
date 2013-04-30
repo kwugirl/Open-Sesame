@@ -74,7 +74,7 @@ def output_gesture(gesture):
     """ % (str(gesture))
 
     os.system(output_cmd)
-    # TO DO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
+    # TODO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
 
 
 def get_avg_reading(vectors):

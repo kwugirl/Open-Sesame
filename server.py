@@ -20,36 +20,46 @@ def create_user():
 
 @app.route("/save_user", methods=["POST"])
 def save_user():
-
     form_email = urllib.quote(request.form['email'])
-    # TO DO: add check for password not being in JSON format
-    form_password1 = json.loads(request.form['password1'])  # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
-    form_password2 = json.loads(request.form['password2'])
-    form_password3 = json.loads(request.form['password3'])
 
-    # TO DO: add check that email doesn't already exist in DB
-    # TO DO: clean up whether 3 samples should be required
-    if form_email and form_password1:  # checking that both email and pw have been entered
-        gesture1 = dtw_algorithm.create_gesture(form_password1)
-        gesture2 = dtw_algorithm.create_gesture(form_password2)
-        gesture3 = dtw_algorithm.create_gesture(form_password3)
+    # checking that username was entered
+    if form_email:
+        # checking that username doesn't already exist in DB
+        user = model.session.query(model.User).filter_by(email=form_email).first()
 
-        gestures = [gesture1, gesture2, gesture3]
-
-        # TO DO: better way to do this combinatorics?
-        # run DTW on all pairs of samples, store greatest difference as user's personal threshold
-        threshold = max(gesture1 - gesture2, gesture1 - gesture3, gesture2 - gesture3)
-
-        new_user = model.User(email=form_email, password=gestures, threshold=threshold)
-        model.session.add(new_user)
-        model.session.commit()
-
-        flash('New user ' + request.form['email'] + ' created!')
-        return redirect(url_for('index'))
+        if user:
+            flash('Username already taken, please choose a different username.')
+            return redirect(url_for('create_user'))
 
     else:
-        flash('Please enter a valid email address and password.')
+        flash('Please enter a username.')
         return redirect(url_for('create_user'))
+
+    # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
+    try:  # checking that passwords are in JSON format and exist
+        form_password1 = json.loads(request.form['password1'])
+        form_password2 = json.loads(request.form['password2'])
+        form_password3 = json.loads(request.form['password3'])
+    except ValueError:
+        flash('Password samples must be motion gestures, please try again.')
+        return redirect(url_for('create_user'))
+
+    gesture1 = dtw_algorithm.create_gesture(form_password1)
+    gesture2 = dtw_algorithm.create_gesture(form_password2)
+    gesture3 = dtw_algorithm.create_gesture(form_password3)
+
+    gestures = [gesture1, gesture2, gesture3]
+
+    # TODO: better way to do this combinatorics?
+    # run DTW on all pairs of samples (3 choose 2 combinatorics), store greatest difference as user's personal threshold
+    threshold = max(gesture1 - gesture2, gesture1 - gesture3, gesture2 - gesture3)
+
+    new_user = model.User(email=form_email, password=gestures, threshold=threshold)
+    model.session.add(new_user)
+    model.session.commit()
+
+    flash('New user ' + request.form['email'] + ' created!')
+    return redirect(url_for('index'))
 
 
 @app.route("/validate_login", methods=["POST"])
