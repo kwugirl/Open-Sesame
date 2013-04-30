@@ -17,7 +17,8 @@ def main():
         data = str.strip(line)  # strip newline from the end
 
         if data == "start":  # z button pressed down for first time
-            gesture = collect_data(ser)
+            # gesture = collect_data_raw(ser)
+            gesture = collect_data_windows(ser)
             output_gesture(gesture)
 
         elif data == "exit":
@@ -25,9 +26,34 @@ def main():
             return
 
 
-def collect_data(ser):
-    step = 30  # step for how frequently to record readings
-    window = 50  # window to average across
+def collect_data_raw(ser):
+    gesture = []
+
+    print "starting to collect data now"
+
+    line = ser.readline()
+    data = str.strip(line)
+
+    while data != "stop":
+        print data
+
+        values_list = str.split((data), ",")
+        for i in range(len(values_list)):
+            values_list[i] = int(values_list[i])
+            values_list[i] = convert_data(values_list[i])
+
+        gesture.append(values_list)
+
+        line = ser.readline()
+        data = str.strip(line)
+
+    return gesture
+
+
+def collect_data_windows(ser):
+    # changed step and window from 30 and 50 as in U-Wave paper due to nunchuck reading freq at ~100hz
+    step = 3  # step for how frequently to record readings
+    window = 5  # window to average across
     counter = step - window  # start w/ neg number to be able to use mod later
 
     vectors = {}  # dictionary for each list of averaging windows
@@ -67,6 +93,7 @@ def output_gesture(gesture):
     print "finished collecting data"
 
     print gesture
+    print len(gesture)
 
     # writes out gesture data as text to wherever Mac OS can type right then
     output_cmd = """
