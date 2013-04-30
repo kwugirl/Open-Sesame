@@ -2,39 +2,37 @@
 
 {% block body %}
 
-<h1>Open Sesame</h1>
-
-<!-- login link -->
+  <!--only show logout link, login status if user is logged in.-->
 {% if session['email'] %}
-<!--only show logout link, login status if user is logged in.-->
 
-    <!-- Sign-in status-->
-    Welcome, {{ session['email'] }}!
+  <!--  Sign-in status-->
+  <span class="btn btn-large btn-block disabled">Hello, {{ session['email'] }}!</span>
 
-    <!-- logout link -->
-    <br />
-    <a href="{{ url_for('logout') }}">Click here to logout</a>
+  <!-- logout link -->
+  <br />
+  <a class="login-link" href="{{ url_for('logout') }}">Click here to logout</a>
 
 {% else %}
 
-<h1>Login</h1>
+  <form name="login" action="{{ url_for('validate_login') }}" method="post">
 
-    <form name="login" action="{{ url_for('validate_login') }}" method="post">
-        Email: <input type="text" name="email"><br />
-        Password: <br />
-        <textarea name="password" id="password" rows="5" columns="30"></textarea><br />
+  <div class="control-group">
+    <input type="text" class="login-field" value="" placeholder="Enter your username" name="email" />
+    <label class="login-field-icon fui-man-16" for="login-name"></label>
+  </div>
 
-        <input type="submit" value="Login">
-    </form>
+  <div class="control-group">
+    <input type="text" class="login-field" value="" placeholder="3-D password" name="password" />
+    <label class="login-field-icon fui-lock-16" for="login-pass"></label>
+  </div>
 
+  <input type="submit" class="btn btn-primary btn-large btn-block" value="Sign in">
 
-    <a href="{{ url_for('create_user') }}">Create a new user</a>
+  </form>
+
+  <a class="login-link" href="{{ url_for('create_user') }}">Create a new account</a>
 
 {% endif %}
-
-
-
-
 
 
 {% endblock %}

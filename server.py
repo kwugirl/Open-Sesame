@@ -35,10 +35,6 @@ def save_user():
         flash('Please enter a valid email address and password.')
         return redirect(url_for('create_user'))
 
-@app.route("/login", methods=['GET'])
-def login():
-    return render_template("login.html")
-
 @app.route("/validate_login", methods=["POST"])
 def validate_login():
     form_email = urllib.quote(request.form['email'])
@@ -54,16 +50,18 @@ def validate_login():
         session['email'] = request.form['email']
         session['user_id'] = user.id
         flash('Login successful!')
-        return redirect(url_for('index'))
+
     else:
         flash('Please enter a valid email address and password.')
-        return redirect(url_for('login'))
+
+    return redirect(url_for('index'))
 
 @app.route("/logout")
 def logout():
     session.pop('email', None)
     session.pop('user_id', None)
     flash('You have logged out.')
+
     return redirect(url_for('index'))
 
 

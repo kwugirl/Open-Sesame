@@ -1,9 +1,19 @@
+<!DOCTYPE html>
 <html>
 
-<head>
+    <head>
 
+        <title>Open Sesame</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-</head>
+        <!-- Loading Bootstrap -->
+        <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+
+        <!-- Loading Flat UI -->
+        <link href="{{ url_for('static', filename='css/flat-ui.css') }}" rel="stylesheet">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+    </head>
 
 <body>
 
@@ -11,8 +21,27 @@
   <div class=flash>{{ message }}</div>
 {% endfor %}
 
+<div class="container">
+
+  <div class="login">
+    <div class="login-screen">
+
+      <div class="login-icon">
+        <img src="{{ url_for('static', filename='images/login/icon.png') }}" alt="Welcome to Mail App" />
+        <h4>Welcome to <small>Open Sesame</small></h4>
+      </div>
+
+
+      <div class="login-form">
+
+
 {% block body %}
 {% endblock %}
+
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 

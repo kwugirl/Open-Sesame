@@ -1,3 +1,5 @@
+import math
+
 class Vector:
     def __init__(self, x, y, z):
         self.x = x
@@ -5,11 +7,11 @@ class Vector:
         self.z = z
 
     def __sub__ (self, other): # for if you were to subtract one vector object from another. dot product calculation to get Euclidean distance between two vectors (magnitude of vector between them), formula from http://www.mathsisfun.com/algebra/vectors-dot-product.html
-        x = self.x * other.x
-        y = self.y * other.y
-        z = self.z * other.z
+        x = self.x - other.x
+        y = self.y - other.y
+        z = self.z - other.z
 
-        distance = x + y + z
+        distance = math.sqrt(x ** 2 + y ** 2 + z ** 2)
 
         return distance
 
