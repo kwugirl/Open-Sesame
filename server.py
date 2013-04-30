@@ -1,6 +1,7 @@
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 import urllib  # used for URL encoding
 import json
+import random
 import model
 import dtw_algorithm
 
@@ -10,7 +11,9 @@ app.secret_key = 'some_secret'
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    gif_name = str(random.randint(1, 5)) + ".gif"
+    gif_url = url_for('static', filename='images/rewards/'+gif_name)
+    return render_template("index.html", gif_src=gif_url)
 
 
 @app.route("/create_user")
@@ -87,7 +90,6 @@ def validate_login():
     if authentication is True:
         session['email'] = request.form['email']
         session['user_id'] = user.id
-        flash('Login successful!')
 
     else:
         flash('Please enter a valid email address and password.')

@@ -8,6 +8,8 @@
   <!--  Sign-in status-->
   <span class="btn btn-large btn-block disabled">Hello, {{ session['email'] }}!</span>
 
+  <image src="{{ gif_src }}" width="100%">
+
   <!-- logout link -->
   <br />
   <a class="login-link" href="{{ url_for('logout') }}">Click here to logout</a>
