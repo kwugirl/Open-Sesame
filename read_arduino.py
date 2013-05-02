@@ -1,6 +1,7 @@
 import serial
 import math
 import os
+import struct
 import base64
 
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
@@ -51,15 +52,17 @@ def collect_data_windows(ser):
 
         counter += 1
 
+        # add each new xyz value to the right list in the vectors dictionary
         for i in range(len(values_list)):
             values_list[i] = int(values_list[i])  # convert contents of vector_list into numbers
             vectors[i].pop(0)  # pop off oldest value
             vectors[i].append(values_list[i])  # append newest value
 
-        if counter % step == 0 and counter != 0:  # for taking readings at the right steps (30, 60...) but skip when counter hits 0
+        # take readings at the right steps (30, 60...) but skip when counter hits 0
+        if counter % step == 0 and counter != 0:
             reading = get_avg_reading(vectors)
-            reading_packed = byte_pack(reading)
-            gesture.append(reading_packed)
+            # reading_packed = byte_pack(reading)
+            gesture.append(reading)
 
         line = ser.readline()
         data = str.strip(line)
@@ -67,39 +70,37 @@ def collect_data_windows(ser):
     return gesture
 
 
-def collect_data_raw(ser):
-    gesture = []
+# def collect_data_raw(ser):
+#     gesture = []
 
-    print "starting to collect data now"
+#     print "starting to collect data now"
 
-    line = ser.readline()
-    data = str.strip(line)
+#     line = ser.readline()
+#     data = str.strip(line)
 
-    while data != "stop":
-        print data
+#     while data != "stop":
+#         print data
 
-        values_list = str.split((data), ",")
-        for i in range(len(values_list)):
-            values_list[i] = int(values_list[i])
-            values_list[i] = convert_data(values_list[i])
+#         values_list = str.split((data), ",")
+#         for i in range(len(values_list)):
+#             values_list[i] = int(values_list[i])
+#             values_list[i] = convert_data(values_list[i])
 
-        gesture.append(values_list)
+#         gesture.append(values_list)
 
-        line = ser.readline()
-        data = str.strip(line)
+#         line = ser.readline()
+#         data = str.strip(line)
 
-    return gesture
+#     return gesture
 
 
 def output_gesture(gesture):
     print "finished collecting data"
 
-    # TODO: fix this, not right
-    encoded_gesture = base64.b64encode(''.join(gesture))
+    print "all vectors: ", gesture
+    print "full gesture length: ", len(gesture)
 
-    print gesture
-    print len(gesture)
-    print encoded_gesture
+    encoded_gesture = encode_gesture(gesture)
 
     # writes out gesture data as text to wherever Mac OS can type right then
     output_cmd = """
@@ -131,6 +132,7 @@ def get_avg(numbers):
     return avg
 
 
+# given vector value, scale it to be between -16 and +16
 def convert_data(value):
     max_value = 256  # goes from 0-256 (1-255 for actual input)
     max_half = max_value/2
@@ -164,6 +166,7 @@ def convert_data(value):
         return int(new_value)
 
 
+# given set of xyz vectors, get back one 15-bit number to represent all 3
 def byte_pack(vector_list):
     for i in range(len(vector_list)):
         if vector_list[i] < 0:  # to handle negative numbers, use 5th bit as signed bit
@@ -176,7 +179,30 @@ def byte_pack(vector_list):
     for vector in vector_list:
         vector_packed = vector_packed | vector  # "bitwise or" all three numbers together
 
-    return bin(vector_packed)
+    return vector_packed
+
+
+# given list of byte-packed vectors (each 2-byte number is one vector), get base64 encoded version back
+def encode_gesture(gesture):
+    gesture_consolidated = []
+    for vector in gesture:
+        gesture_consolidated.append(byte_pack(vector))
+    print "xyz consolidated: ", gesture_consolidated
+
+    gesture_bytes = []
+    for vector in gesture_consolidated:
+    # break each 15-bit vector number into two halves (2 bytes)
+        left_byte = (vector & 0xFF00) >> 8  # get left half, shift by 8 to make 8-bit number
+
+        right_byte = vector & 0x00FF  # get right right
+
+        byte_pair = struct.pack("hh", left_byte, right_byte)
+        gesture_bytes.append(byte_pair)
+    print "byte pairs: ", gesture_bytes
+
+    encoded_gesture = base64.b64encode(''.join(gesture_bytes))
+
+    return encoded_gesture
 
 
 if __name__ == "__main__":
