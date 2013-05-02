@@ -1,6 +1,7 @@
 import serial
 import math
 import os
+import base64
 
 # this is the driver to get data off the device (Arduino + Wii nunchuck)
 # run this to collect input from nunchuck
@@ -24,30 +25,6 @@ def main():
         elif data == "exit":
             ser.close()
             return
-
-
-def collect_data_raw(ser):
-    gesture = []
-
-    print "starting to collect data now"
-
-    line = ser.readline()
-    data = str.strip(line)
-
-    while data != "stop":
-        print data
-
-        values_list = str.split((data), ",")
-        for i in range(len(values_list)):
-            values_list[i] = int(values_list[i])
-            values_list[i] = convert_data(values_list[i])
-
-        gesture.append(values_list)
-
-        line = ser.readline()
-        data = str.strip(line)
-
-    return gesture
 
 
 def collect_data_windows(ser):
@@ -81,7 +58,32 @@ def collect_data_windows(ser):
 
         if counter % step == 0 and counter != 0:  # for taking readings at the right steps (30, 60...) but skip when counter hits 0
             reading = get_avg_reading(vectors)
-            gesture.append(reading)
+            reading_packed = byte_pack(reading)
+            gesture.append(reading_packed)
+
+        line = ser.readline()
+        data = str.strip(line)
+
+    return gesture
+
+
+def collect_data_raw(ser):
+    gesture = []
+
+    print "starting to collect data now"
+
+    line = ser.readline()
+    data = str.strip(line)
+
+    while data != "stop":
+        print data
+
+        values_list = str.split((data), ",")
+        for i in range(len(values_list)):
+            values_list[i] = int(values_list[i])
+            values_list[i] = convert_data(values_list[i])
+
+        gesture.append(values_list)
 
         line = ser.readline()
         data = str.strip(line)
@@ -92,13 +94,17 @@ def collect_data_windows(ser):
 def output_gesture(gesture):
     print "finished collecting data"
 
+    # TODO: fix this, not right
+    encoded_gesture = base64.b64encode(''.join(gesture))
+
     print gesture
     print len(gesture)
+    print encoded_gesture
 
     # writes out gesture data as text to wherever Mac OS can type right then
     output_cmd = """
     osascript -e 'tell application "System Events" to keystroke "%s"'
-    """ % (str(gesture))
+    """ % (encoded_gesture)
 
     os.system(output_cmd)
     # TODO: terminal gets msg "dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements"
@@ -156,6 +162,21 @@ def convert_data(value):
         new_value = abs_value*sign
 
         return int(new_value)
+
+
+def byte_pack(vector_list):
+    for i in range(len(vector_list)):
+        if vector_list[i] < 0:  # to handle negative numbers, use 5th bit as signed bit
+            vector_list[i] = abs(vector_list[i]) | 16  # "bitwise or" with 16
+
+        vector_list[i] = vector_list[i] & 31  # "bitwise and" to get 5 bits of data
+        vector_list[i] = vector_list[i] << i*5  # left shift 2nd and 3rd numbers
+
+    vector_packed = 0
+    for vector in vector_list:
+        vector_packed = vector_packed | vector  # "bitwise or" all three numbers together
+
+    return bin(vector_packed)
 
 
 if __name__ == "__main__":
