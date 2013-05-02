@@ -1,9 +1,10 @@
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 import urllib  # used for URL encoding
-import json
 import random
 import model
 import dtw_algorithm
+import decode_vector
+
 
 app = Flask(__name__)
 app.secret_key = 'some_secret'
@@ -39,12 +40,12 @@ def save_user():
         flash('Please enter a username.')
         return redirect(url_for('create_user'))
 
-    # takes unicode string from form and because it's already in JSON-acceptable format, gets it back out as a list data type instead of unicode string
-    try:  # checking that passwords are in JSON format and exist
-        form_password1 = json.loads(request.form['password1'])
-        form_password2 = json.loads(request.form['password2'])
-        form_password3 = json.loads(request.form['password3'])
-    except ValueError:
+    try:
+        # get gestures back into lists of xyz vector lists
+        form_password1 = decode_vector.decode(request.form['password1'])
+        form_password2 = decode_vector.decode(request.form['password2'])
+        form_password3 = decode_vector.decode(request.form['password3'])
+    except TypeError:
         flash('Password samples must be motion gestures, please try again.')
         return redirect(url_for('create_user'))
 
@@ -71,8 +72,8 @@ def validate_login():
     form_email = urllib.quote(request.form['email'])
 
     try:
-        form_password = json.loads(request.form['password'])
-    except ValueError:
+        form_password = decode_vector.decode(request.form['password'])
+    except TypeError:
         flash('Password must be a motion gesture, please try again.')
         return redirect(url_for('index'))
 
@@ -84,6 +85,7 @@ def validate_login():
 
     if user:
         for password in user.password:
+            # form password must be within user's own threshold for variability for at least one of 3 initial training samples
             if gesture - password <= user.threshold:
                 authentication = True
                 break

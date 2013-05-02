@@ -187,7 +187,7 @@ def encode_gesture(gesture):
     gesture_consolidated = []
     for vector in gesture:
         gesture_consolidated.append(byte_pack(vector))
-    print "xyz consolidated: ", gesture_consolidated
+    # print "xyz consolidated: ", gesture_consolidated
 
     gesture_bytes = []
     for vector in gesture_consolidated:
@@ -198,7 +198,7 @@ def encode_gesture(gesture):
 
         byte_pair = struct.pack("hh", left_byte, right_byte)
         gesture_bytes.append(byte_pair)
-    print "byte pairs: ", gesture_bytes
+    # print "byte pairs: ", gesture_bytes
 
     encoded_gesture = base64.b64encode(''.join(gesture_bytes))
 
