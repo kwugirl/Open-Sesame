@@ -4,6 +4,7 @@ import random
 import model
 import dtw_algorithm
 import decode_vector
+import struct
 
 
 app = Flask(__name__)
@@ -45,7 +46,7 @@ def save_user():
         form_password1 = decode_vector.decode(request.form['password1'])
         form_password2 = decode_vector.decode(request.form['password2'])
         form_password3 = decode_vector.decode(request.form['password3'])
-    except TypeError:
+    except (TypeError, struct.error):
         flash('Password samples must be motion gestures, please try again.')
         return redirect(url_for('create_user'))
 
@@ -73,7 +74,7 @@ def validate_login():
 
     try:
         form_password = decode_vector.decode(request.form['password'])
-    except TypeError:
+    except (TypeError, struct.error):
         flash('Password must be a motion gesture, please try again.')
         return redirect(url_for('index'))
 
