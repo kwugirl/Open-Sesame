@@ -13,7 +13,7 @@ app.secret_key = 'some_secret'
 
 @app.route("/")
 def index():
-    gif_name = str(random.randint(1, 5)) + ".gif"
+    gif_name = str(random.randint(1, 8)) + ".gif"
     gif_url = url_for('static', filename='images/rewards/'+gif_name)
 
     return render_template("index.html", gif_src=gif_url)
