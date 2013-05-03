@@ -13,10 +13,15 @@ app.secret_key = 'some_secret'
 
 @app.route("/")
 def index():
-    gif_name = str(random.randint(1, 8)) + ".gif"
-    gif_url = url_for('static', filename='images/rewards/'+gif_name)
 
-    return render_template("index.html", gif_src=gif_url)
+    gif_url = None
+    if "email" in session:
+        gif_name = str(random.randint(1, 8)) + ".gif"
+        gif_url = url_for('static', filename='images/rewards/'+gif_name)
+
+    user = request.args.get('user', '')
+
+    return render_template("index.html", gif_src=gif_url, user=user)
 
 
 @app.route("/create_user")
@@ -96,9 +101,10 @@ def validate_login():
         session['user_id'] = user.id
 
     else:
-        flash('Please enter a valid email address and password.')
+        flash('Please enter a valid username and password.')
+        user = request.form['email']
 
-    return redirect(url_for('index'))
+    return redirect(url_for('index', user=user))
 
 
 @app.route("/logout")
