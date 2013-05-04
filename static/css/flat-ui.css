@@ -2387,7 +2387,8 @@ body.vjs-full-window {
     padding-bottom: 11px;
     padding-top: 11px;
     text-indent: 3px;
-    width: 299px; }
+    padding-right: 34px;
+    width: 265px; }
     .login-form .login-field:focus + .login-field-icon {
       color: #1abc9c; }
   .login-form .login-field-icon {
