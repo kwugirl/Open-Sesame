@@ -54,9 +54,7 @@ def collect_data_windows(ser):
 
         # add each new xyz value to the right list in the vectors dictionary
         for i in range(len(values_list)):
-            values_list[i] = int(values_list[i])  # convert contents of vector_list into numbers
-            vectors[i].pop(0)  # pop off oldest value
-            vectors[i].append(values_list[i])  # append newest value
+            vectors[i] = update_dict_value(values_list[i], vectors[i])
 
         # take readings at the right steps (30, 60...) but skip when counter hits 0
         if counter % step == 0 and counter != 0:
@@ -68,6 +66,14 @@ def collect_data_windows(ser):
         data = str.strip(line)
 
     return gesture
+
+
+def update_dict_value(s, values_list):
+    n = int(s)
+    values_list.pop(0)  # pop off oldest value
+    values_list.append(n)  # append newest value
+
+    return values_list
 
 
 # def collect_data_raw(ser):

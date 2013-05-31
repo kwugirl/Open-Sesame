@@ -44,22 +44,7 @@ def dtw(x_axis, y_axis, distance=distance_euclidean):  # set_a and set_b are lis
     x = len(x_axis) + 1
     y = len(y_axis) + 1
 
-    # make empty matrix (list of lists) that are x across and y deep
-    dtw_matrix = [0]*x  # set up matrix's full length along x-axis
-    for j in range(x):
-        temp_list = []
-        for i in range(y):
-            temp_list.append([])  # set up matrix's full length along y-axis
-        dtw_matrix[j] = temp_list  # do it this way so that don't get a list of the same list over and over again, next line wouldn't work to only change value for one cell in matrix
-
-    dtw_matrix[0][0] = 0  # set first box to be 0 as starting point
-
-    # fill in top/left borders of matrix with infinity
-    inf = float("inf")  # use this way to get infinity as a value in Python
-    for i in range(1, x):
-        dtw_matrix[i][0] = inf
-    for i in range(1, y):
-        dtw_matrix[0][i] = inf
+    dtw_matrix = build_borders(x, y)
 
     # #for loops go from (1, 1) to (1, y-1) positions, then (2, 1) to (2, y-1) until you end up with a value for (x-1, y-1)
     for i in range(1, x):
@@ -79,3 +64,24 @@ def dtw(x_axis, y_axis, distance=distance_euclidean):  # set_a and set_b are lis
     #   print ""
 
     return dtw_matrix[x-1][y-1]
+
+
+def build_borders(x, y):
+    # make empty matrix (list of lists) that are x across and y deep
+    dtw_matrix = [0]*x  # set up matrix's full length along x-axis
+    for j in range(x):
+        temp_list = []
+        for i in range(y):
+            temp_list.append([])  # set up matrix's full length along y-axis
+        dtw_matrix[j] = temp_list  # do it this way so that don't get a list of the same list over and over again, next line wouldn't work to only change value for one cell in matrix
+
+    dtw_matrix[0][0] = 0  # set first box to be 0 as starting point
+
+    # fill in top/left borders of matrix with infinity
+    inf = float("inf")  # use this way to get infinity as a value in Python
+    for i in range(1, x):
+        dtw_matrix[i][0] = inf
+    for i in range(1, y):
+        dtw_matrix[0][i] = inf
+
+    return dtw_matrix
